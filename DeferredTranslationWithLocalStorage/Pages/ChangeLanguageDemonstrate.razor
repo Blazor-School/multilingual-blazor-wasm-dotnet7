@@ -1,0 +1,8 @@
+﻿@page "/change-language-demonstrate"
+@using DeferredTranslationWithLocalStorage.Components
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<ChangeLanguageDemonstrate> Localizer
+
+<h3>ChangeLanguageDemonstrate</h3>
+@Localizer["String1"]
+<LanguageSelector />

@@ -1,0 +1,15 @@
+﻿@inject IJSRuntime JSRuntime
+
+<select @onchange="OnChangeLanguage">
+    <option value="">Select</option>
+    <option value="en">English</option>
+    <option value="fr">France</option>
+</select>
+
+@code {
+    private void OnChangeLanguage(ChangeEventArgs e)
+    {
+        string selectedLanguage = e.Value?.ToString() ?? "en";
+        InvokeAsync(() => JSRuntime.InvokeVoidAsync("blazorCulture.set", selectedLanguage));
+    }
+}
