@@ -10,41 +10,17 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+builder.Services.AddLocalization(options => options.ResourcesPath = "BlazorSchoolResources");
+builder.Services.AddScoped(sp => (IJSUnmarshalledRuntime)sp.GetRequiredService<IJSRuntime>());
+builder.Services.AddScoped<BlazorSchoolEagerCultureProvider>();
 
-// Use either eager loading or lazy loading resource
-await UseEagerCultureProviderAsync(builder);
-// Use either eager loading or lazy loading resource
-//await UseLazyCultureProviderAsync(builder);
+var wasmHost = builder.Build();
+var culturesProvider = wasmHost.Services.GetService<BlazorSchoolEagerCultureProvider>();
 
-static async Task UseEagerCultureProviderAsync(WebAssemblyHostBuilder builder)
+if (culturesProvider is not null)
 {
-    builder.Services.AddLocalization(options => options.ResourcesPath = "BlazorSchoolResources");
-    builder.Services.AddScoped(sp => (IJSUnmarshalledRuntime)sp.GetRequiredService<IJSRuntime>());
-    builder.Services.AddScoped<BlazorSchoolEagerCultureProvider>();
-
-    var wasmHost = builder.Build();
-    var culturesProvider = wasmHost.Services.GetService<BlazorSchoolEagerCultureProvider>();
-
-    if (culturesProvider is not null)
-    {
-        await culturesProvider.LoadCulturesAsync("fr", "en");
-        await culturesProvider.SetStartupLanguageAsync("fr");
-    }
-
-    await wasmHost.RunAsync();
+    await culturesProvider.LoadCulturesAsync("fr", "en");
+    await culturesProvider.SetStartupLanguageAsync("fr");
 }
 
-static async Task UseLazyCultureProviderAsync(WebAssemblyHostBuilder builder)
-{
-    builder.Services.AddLocalization(options => options.ResourcesPath = "BlazorSchoolResources");
-    builder.Services.AddHttpClient("InternalHttpClient", httpClient => httpClient.BaseAddress = new(builder.HostEnvironment.BaseAddress));
-    builder.Services.AddScoped(typeof(IStringLocalizer<>), typeof(BlazorSchoolStringLocalizer<>));
-    builder.Services.AddScoped<BlazorSchoolLazyCultureProvider>();
-    builder.Services.AddScoped<BlazorSchoolResourceMemoryStorage>();
-
-    var wasmHost = builder.Build();
-    var culturesProvider = wasmHost.Services.GetService<BlazorSchoolLazyCultureProvider>();
-    culturesProvider?.SetStartupLanguage("fr");
-
-    await wasmHost.RunAsync();
-}
+await wasmHost.RunAsync();
