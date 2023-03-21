@@ -1,0 +1,24 @@
+﻿@using System.Globalization
+@using InstantTranslationWithLocalStorage.Utilities
+@using Microsoft.AspNetCore.Localization
+@inject BlazorSchoolLazyCultureProvider BlazorSchoolCultureProvider
+
+<select @onchange="OnChangeLanguage">
+    <option value="">Select</option>
+    <option value="en">English</option>
+    <option value="fr">France</option>
+</select>
+
+@code {
+    private void OnChangeLanguage(ChangeEventArgs e)
+    {
+        if (string.IsNullOrEmpty(e.Value?.ToString()) is false)
+        {
+            string selectedLanguage = e.Value.ToString()!;
+            CultureInfo.DefaultThreadCurrentCulture = new CultureInfo(selectedLanguage);
+            CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo(selectedLanguage);
+            BlazorSchoolLocalStorageAccessor.SetItem("BlazorSchoolInstantTranslation", selectedLanguage);
+            InvokeAsync(BlazorSchoolCultureProvider.NotifyLanguageChangeAsync);
+        }
+    }
+}
