@@ -13,10 +13,10 @@ builder.Services.AddLocalization(options => options.ResourcesPath = "BlazorSchoo
 
 var host = builder.Build();
 
-await SetWebsiteLanguage(host);
+await SetWebsiteLanguageAsync(host);
 await host.RunAsync();
 
-static async Task SetWebsiteLanguage(WebAssemblyHost host)
+static async Task SetWebsiteLanguageAsync(WebAssemblyHost host)
 {
     var js = host.Services.GetRequiredService<IJSRuntime>();
     string userPreferenceLanguage = await js.InvokeAsync<string>("blazorCulture.get");
